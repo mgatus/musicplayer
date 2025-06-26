@@ -29,9 +29,15 @@
 
     <div class="playlist">
       <ul class="playlist-list">
-        <li class="list" v-for="(song, index) in songs" :key="index" @click="selectSong(index)"
-          :class="{ selected: currentIndex === index }" style="cursor: pointer; padding: 8px; list-style: none;">
-
+        <li
+          class="list"
+          v-for="(song, index) in songs"
+          :key="index"
+          @click="selectSong(index)"
+          :class="{ selected: currentIndex === index }"
+          ref="activeSong"
+          style="cursor: pointer; padding: 8px; list-style: none;"
+        >
           <img class="coverThumbnail" :src="`${baseUrl}covers/${song.cover}`" :alt="song.title">
           <div class="songDetails">{{ song.title }} <small>{{ song.artist }}</small></div>
         </li>
@@ -48,7 +54,8 @@ import '@material/web/slider/slider.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
+const { proxy } = getCurrentInstance()
 
 const audio = ref(null)
 const isPlaying = ref(false)
@@ -104,6 +111,14 @@ function seekAudio() {
 }
 
 function selectSong(index) {
+  if (currentIndex.value === index) {
+    // If the same song is clicked, replay from the start
+    audio.value.currentTime = 0
+    shouldAutoPlay.value = false
+    audio.value.play()
+    isPlaying.value = true
+    return
+  }
   currentIndex.value = index
   currentSong.value = songs.value[index]
   isPlaying.value = false
@@ -129,6 +144,16 @@ function formatTime(time) {
   const sec = Math.floor(time % 60).toString().padStart(2, '0')
   return `${min}:${sec}`
 }
+
+const activeSong = ref([])
+
+watch(currentIndex, async () => {
+  await nextTick()
+  const el = activeSong.value[currentIndex.value]
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
+})
 </script>
 
 <style scoped>
@@ -207,10 +232,9 @@ md-slider::part(handle) {
   padding: 0;
   margin: 0;
   list-style: none;
-  overflow: auto;
   height: 200px;
+  overflow: auto;
   scroll-behavior: smooth;
-  /* Smooth scrolling */
 }
 
 /* Custom scrollbar styling for Webkit browsers */
