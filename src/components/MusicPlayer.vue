@@ -1,13 +1,14 @@
 <template>
   <div class="player">
-    <h2 class="playingsongTitle">{{ currentSong?.title || 'No song loaded' }} <br> <span class="currentArtist">{{ currentSong?.artist }}</span></h2>
+    <h2 class="playingsongTitle">{{ currentSong?.title || 'No song loaded' }} <br> <span class="currentArtist">{{
+        currentSong?.artist }}</span></h2>
 
 
-    <img v-if="currentSong?.cover" :src="`/covers/${currentSong.cover}`" alt="Cover" class="cover"
+    <img v-if="currentSong?.cover" :src="`${import.meta.env.BASE_URL}covers/${song.cover}`" alt="Cover" class="cover"
       style="max-width: 200px; margin-bottom: 16px;" />
 
-    <audio ref="audio" v-if="currentSong" :src="`/songs/${currentSong.filename}`" @timeupdate="updateTime"
-      @loadedmetadata="setDuration" />
+    <audio ref="audio" v-if="currentSong" :src="`${import.meta.env.BASE_URL}songs/${currentSong.filename}`"
+      @timeupdate="updateTime" @loadedmetadata="setDuration" />
 
     <div class="controls" v-if="currentSong">
       <button @click="prevSong" class="playPauseButton" style="width:48px;height:48px;margin-right:12px;">
@@ -33,7 +34,7 @@
         <li class="list" v-for="(song, index) in songs" :key="index" @click="selectSong(index)"
           :class="{ selected: currentIndex === index }" style="cursor: pointer; padding: 8px; list-style: none;">
 
-          <img class="coverThumbnail" :src="`/covers/${song.cover}`" :alt="song.title">
+          <img class="coverThumbnail" :src="`${import.meta.env.BASE_URL}covers/${song.cover}`" :alt="song.title">
           <div class="songDetails">{{ song.title }} <small>{{ song.artist }}</small></div>
         </li>
       </ul>
