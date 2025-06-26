@@ -59,9 +59,10 @@ const duration = ref(0)
 const songs = ref([])
 const currentIndex = ref(0)
 const currentSong = ref(null)
+const shouldAutoPlay = ref(false)
 
 onMounted(async () => {
-  const res = await fetch('/songs.json')
+  const res = await fetch(`${import.meta.env.BASE_URL}songs.json`)
   songs.value = await res.json()
   currentSong.value = songs.value[0] || null
 })
@@ -82,6 +83,12 @@ function updateTime() {
 
 function setDuration() {
   duration.value = audio.value.duration
+  // Auto-play when a new song is loaded
+  if (shouldAutoPlay.value) {
+    audio.value.play()
+    isPlaying.value = true
+    shouldAutoPlay.value = false
+  }
 }
 
 function seekAudio() {
@@ -92,9 +99,7 @@ function selectSong(index) {
   currentIndex.value = index
   currentSong.value = songs.value[index]
   isPlaying.value = false
-  audio.value.load()
-  audio.value.play()
-  isPlaying.value = true
+  shouldAutoPlay.value = true
 }
 
 function nextSong() {
