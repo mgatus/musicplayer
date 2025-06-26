@@ -1,0 +1,8 @@
+[
+  { "title": "Sugar", "filename": "sample.mp3", "cover": "6.webp", "artist": "Maroon V" },
+  { "title": "Upbeat Tune", "filename": "journey.mp3", "cover": "2.webp", "artist": "Sunny Vibes" },
+  { "title": "Jazz Flow", "filename": "static_space.mp3", "cover": "3.jpg", "artist": "Smooth Quartet" },
+  { "title": "Chill Beat", "filename": "stuck_at_home.mp3", "cover": "4.jpg", "artist": "LoFi Collective" },
+  { "title": "Upbeat Tune", "filename": "journey.mp3", "cover": "5.jpg", "artist": "Sunny Vibes" },
+  { "title": "Jazz Flow", "filename": "stuck_at_home.mp3", "cover": "1.jpg", "artist": "Smooth Quartet" }
+]
