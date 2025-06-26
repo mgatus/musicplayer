@@ -93,12 +93,8 @@ function selectSong(index) {
   currentSong.value = songs.value[index]
   isPlaying.value = false
   audio.value.load()
-  // Wait for the audio to be ready before playing
-  audio.value.oncanplay = () => {
-    audio.value.play()
-    isPlaying.value = true
-    audio.value.oncanplay = null // Remove handler after first call
-  }
+  audio.value.play()
+  isPlaying.value = true
 }
 
 function nextSong() {
