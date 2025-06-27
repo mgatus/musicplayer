@@ -157,8 +157,11 @@ watch(currentIndex, async () => {
 </script>
 
 <style scoped>
+html {
+  scroll-behavior: smooth;
+}
 .player {
-  width: 500px;
+  width: 400px;
   max-width: 1024px;
   margin: 40px auto;
   text-align: center;
@@ -258,6 +261,7 @@ md-slider::part(handle) {
 .playlist-list {
   scrollbar-width: thin;
   scrollbar-color: #a18cd1 #4b256a;
+  scroll-behavior: smooth;
 }
 
 .playlist-list li {
