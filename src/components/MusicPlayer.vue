@@ -28,7 +28,7 @@
       @input="e => { currentTime = e.target.value; seekAudio(); }" style="width: 100%; margin-top: 10px;"></md-slider>
 
     <div class="playlist">
-      <ul class="playlist-list">
+      <ul class="playlist-list" ref="playlistListRef">
         <li
           class="list"
           v-for="(song, index) in songs"
@@ -54,7 +54,8 @@ import '@material/web/slider/slider.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 
-import { ref, onMounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
+import Lenis from '@studio-freight/lenis'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick, getCurrentInstance } from 'vue'
 const { proxy } = getCurrentInstance()
 
 const audio = ref(null)
@@ -66,6 +67,9 @@ const songs = ref([])
 const currentIndex = ref(0)
 const currentSong = ref(null)
 const shouldAutoPlay = ref(false)
+
+const playlistListRef = ref(null)
+let lenisInstance = null // Use let and initialize to null
 
 const baseUrl = import.meta.env.BASE_URL
 
@@ -80,6 +84,32 @@ onMounted(async () => {
   const res = await fetch(`${import.meta.env.BASE_URL}songs.json`)
   songs.value = await res.json()
   currentSong.value = songs.value[0] || null
+})
+
+// NEW: Initialize Lenis only after songs are loaded and rendered
+watch(songs, async (newSongs) => {
+  if (newSongs.length > 0 && !lenisInstance) {
+    await nextTick() // Wait for the DOM to update
+
+    if (playlistListRef.value) {
+      lenisInstance = new Lenis({
+        wrapper: playlistListRef.value, // The scrollable element
+      })
+
+      function raf(time) {
+        lenisInstance.raf(time)
+        requestAnimationFrame(raf)
+      }
+      requestAnimationFrame(raf)
+    }
+  }
+}, { once: true }) // Use { once: true } so it only runs one time
+
+// 4. Clean up Lenis when the component is destroyed
+onUnmounted(() => {
+  if (lenisInstance) {
+    lenisInstance.destroy()
+  }
 })
 
 function togglePlay() {
@@ -150,7 +180,11 @@ const activeSong = ref([])
 watch(currentIndex, async () => {
   await nextTick()
   const el = activeSong.value[currentIndex.value]
-  if (el) {
+  if (el && lenisInstance) {
+    // Use lenis.scrollTo for a smooth, integrated effect
+    lenisInstance.scrollTo(el, { lock: true })
+  } else if (el) {
+    // Fallback if Lenis isn't initialized
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }
 })
@@ -237,7 +271,6 @@ md-slider::part(handle) {
   list-style: none;
   height: 200px;
   overflow: auto;
-  scroll-behavior: smooth;
 }
 
 /* Custom scrollbar styling for Webkit browsers */
@@ -261,7 +294,6 @@ md-slider::part(handle) {
 .playlist-list {
   scrollbar-width: thin;
   scrollbar-color: #a18cd1 #4b256a;
-  scroll-behavior: smooth;
 }
 
 .playlist-list li {
